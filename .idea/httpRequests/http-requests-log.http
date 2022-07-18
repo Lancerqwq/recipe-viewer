@@ -1,0 +1,28 @@
+GET https://www.themealdb.com/api/json/v1/1/search.php?s=Arrabiata
+Accept: application/json
+
+<> 2022-07-17T005119.200.json
+
+###
+
+GET https://www.themealdb.com/api/json/v1/1/search.php?s=Arrabiata
+Accept: application/json
+
+<> 2022-07-15T183533.200.json
+
+###
+
+GET https://www.themealdb.com/api/json/v1/1/search.php?s=Arrabiata
+Accept: application/json
+
+<> 2022-07-15T181531.200.json
+
+###
+
+GET https://www.themealdb.com/api/json/v1/1/categories.php
+Accept: application/json
+
+<> 2022-07-15T181002.200.json
+
+###
+

@@ -1,0 +1,1451 @@
+Index: pages/_app.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>// import '../styles/globals.css'\n//\n// function MyApp({ Component, pageProps }) {\n//   return <Component {...pageProps} />\n// }\n//\n// export default MyApp\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/pages/_app.js b/pages/_app.js
+--- a/pages/_app.js	
++++ b/pages/_app.js	
+@@ -1,7 +1,10 @@
+-// import '../styles/globals.css'
+-//
+-// function MyApp({ Component, pageProps }) {
+-//   return <Component {...pageProps} />
+-// }
+-//
+-// export default MyApp
++import '../styles/globals.scss';
++import MainLayout from '../components/MainLayout';
++
++export default function MyApp({ Component, pageProps }) {
++  return (
++    <MainLayout>
++      <Component {...pageProps} />
++    </MainLayout>
++  );
++}
+Index: helpers/index.js
+===================================================================
+diff --git a/helpers/index.js b/helpers/index.js
+new file mode 100644
+--- /dev/null	
++++ b/helpers/index.js	
+@@ -0,0 +1,42 @@
++export const fetchAllCategories = async (url) => {
++  const response = await fetch(`${url}/categories.php`);
++
++  if (!response.ok) {
++    const message = `An error has occured: ${response.status}`;
++    throw new Error(message);
++  }
++  return await response.json();
++};
++
++export const fetchData = async (url, query) => {
++  const response = await fetch(`${url}${query}`);
++
++  if (!response.ok) {
++    const message = `An error has occured: ${response.status}`;
++    throw new Error(message);
++  }
++  return await response.json();
++};
++
++export const fetchAllFavoritesData = async (arr, url) => {
++  try {
++    const responses = await Promise.all(arr.map((id) => fetch(`${url}${id}`)));
++    return await Promise.all(responses.map((r) => r.json()));
++  } catch (err) {
++    console.log(err);
++  }
++};
++
++export const getArrayIngredients = ({ meals: [meal] }) => {
++  return Object.entries(meal)
++    .filter(([, v]) => v !== null && v !== '')
++    .reduce((obj, curIng) => {
++      let [k, v] = curIng;
++      if (k.includes('strIngredient')) {
++        let id = +k.slice('strIngredient'.length);
++
++        obj[v] = Object.entries(meal).find(([mealKey]) => mealKey.includes(`strMeasure${id}`))[1];
++      }
++      return obj;
++    }, {});
++};
+Index: next.config.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>/** @type {import('next').NextConfig} */\nconst nextConfig = {\n  reactStrictMode: true,\n  swcMinify: true,\n}\n\nmodule.exports = nextConfig\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/next.config.js b/next.config.js
+--- a/next.config.js	
++++ b/next.config.js	
+@@ -2,6 +2,22 @@
+ const nextConfig = {
+   reactStrictMode: true,
+   swcMinify: true,
+-}
++  images: {
++    domains: ['www.themealdb.com'],
++    minimumCacheTTL: 60,
++  },
++  env: {
++    API_URL: 'https://www.themealdb.com/api/json/v1/1',
++  },
++  redirects: async () => {
++    return [
++      {
++        source: '/',
++        destination: '/categories',
++        permanent: false,
++      },
++    ];
++  },
++};
+ 
+-module.exports = nextConfig
++module.exports = nextConfig;
+Index: .idea/inspectionProfiles/Project_Default.xml
+===================================================================
+diff --git a/.idea/inspectionProfiles/Project_Default.xml b/.idea/inspectionProfiles/Project_Default.xml
+new file mode 100644
+--- /dev/null	
++++ b/.idea/inspectionProfiles/Project_Default.xml	
+@@ -0,0 +1,6 @@
++<component name="InspectionProjectProfileManager">
++  <profile version="1.0">
++    <option name="myName" value="Project Default" />
++    <inspection_tool class="Eslint" enabled="true" level="WARNING" enabled_by_default="true" />
++  </profile>
++</component>
+\ No newline at end of file
+Index: .idea/vcs.xml
+===================================================================
+diff --git a/.idea/vcs.xml b/.idea/vcs.xml
+new file mode 100644
+--- /dev/null	
++++ b/.idea/vcs.xml	
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="VcsDirectoryMappings">
++    <mapping directory="$PROJECT_DIR$" vcs="Git" />
++  </component>
++</project>
+\ No newline at end of file
+Index: .idea/.gitignore
+===================================================================
+diff --git a/.idea/.gitignore b/.idea/.gitignore
+new file mode 100644
+--- /dev/null	
++++ b/.idea/.gitignore	
+@@ -0,0 +1,5 @@
++# Default ignored files
++/shelf/
++/workspace.xml
++# Editor-based HTTP Client requests
++/httpRequests/
+Index: .idea/recipeviewer.iml
+===================================================================
+diff --git a/.idea/recipeviewer.iml b/.idea/recipeviewer.iml
+new file mode 100644
+--- /dev/null	
++++ b/.idea/recipeviewer.iml	
+@@ -0,0 +1,12 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<module type="WEB_MODULE" version="4">
++  <component name="NewModuleRootManager">
++    <content url="file://$MODULE_DIR$">
++      <excludeFolder url="file://$MODULE_DIR$/temp" />
++      <excludeFolder url="file://$MODULE_DIR$/.tmp" />
++      <excludeFolder url="file://$MODULE_DIR$/tmp" />
++    </content>
++    <orderEntry type="inheritedJdk" />
++    <orderEntry type="sourceFolder" forTests="false" />
++  </component>
++</module>
+\ No newline at end of file
+Index: .idea/modules.xml
+===================================================================
+diff --git a/.idea/modules.xml b/.idea/modules.xml
+new file mode 100644
+--- /dev/null	
++++ b/.idea/modules.xml	
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="ProjectModuleManager">
++    <modules>
++      <module fileurl="file://$PROJECT_DIR$/.idea/recipeviewer.iml" filepath="$PROJECT_DIR$/.idea/recipeviewer.iml" />
++    </modules>
++  </component>
++</project>
+\ No newline at end of file
+Index: .idea/watcherTasks.xml
+===================================================================
+diff --git a/.idea/watcherTasks.xml b/.idea/watcherTasks.xml
+new file mode 100644
+--- /dev/null	
++++ b/.idea/watcherTasks.xml	
+@@ -0,0 +1,25 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="ProjectTasksOptions">
++    <TaskOptions isEnabled="false">
++      <option name="arguments" value="$FileName$:$FileNameWithoutExtension$.css" />
++      <option name="checkSyntaxErrors" value="true" />
++      <option name="description" />
++      <option name="exitCodeBehavior" value="ERROR" />
++      <option name="fileExtension" value="scss" />
++      <option name="immediateSync" value="true" />
++      <option name="name" value="SCSS" />
++      <option name="output" value="$FileNameWithoutExtension$.css:$FileNameWithoutExtension$.css.map" />
++      <option name="outputFilters">
++        <array />
++      </option>
++      <option name="outputFromStdout" value="false" />
++      <option name="program" value="sass" />
++      <option name="runOnExternalChanges" value="true" />
++      <option name="scopeName" value="Project Files" />
++      <option name="trackOnlyRoot" value="true" />
++      <option name="workingDir" value="$FileDir$" />
++      <envs />
++    </TaskOptions>
++  </component>
++</project>
+\ No newline at end of file
+Index: .idea/jsLinters/eslint.xml
+===================================================================
+diff --git a/.idea/jsLinters/eslint.xml b/.idea/jsLinters/eslint.xml
+new file mode 100644
+--- /dev/null	
++++ b/.idea/jsLinters/eslint.xml	
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="EslintConfiguration">
++    <option name="fix-on-save" value="true" />
++  </component>
++</project>
+\ No newline at end of file
+Index: components/NavBar.js
+===================================================================
+diff --git a/components/NavBar.js b/components/NavBar.js
+--- a/components/NavBar.js	
++++ b/components/NavBar.js	
+@@ -1,0 +1,50 @@
++import Link from 'next/link';
++import classes from './NavBar.module.scss';
++import { useEffect, useState } from 'react';
++import useWindowSize from '../helpers/useWindowSize';
++
++export default function NavBar() {
++  const { width } = useWindowSize();
++  const [toggleMenu, setToggleMenu] = useState(false);
++  const [screenWidth, setScreenWidth] = useState(width);
++
++  const toggleNav = () => {
++    setToggleMenu(!toggleMenu);
++  };
++
++  useEffect(() => {
++    const changeWidth = () => {
++      setScreenWidth(window.innerWidth);
++    };
++    window.addEventListener('resize', changeWidth);
++    changeWidth();
++    return () => {
++      window.removeEventListener('resize', changeWidth);
++    };
++  }, []);
++
++  return (
++    <header className={classes.header}>
++      <div className={classes.logo}>Recipe Viewer</div>
++      <nav>
++        {(toggleMenu || screenWidth > 576) && (
++          <ul className={classes.list}>
++            <li className={classes.item}>
++              <Link href="/categories">
++                <a>Home</a>
++              </Link>
++            </li>
++            <li className={classes.item}>
++              <Link href="/favorites">
++                <a>Favorite</a>
++              </Link>
++            </li>
++          </ul>
++        )}
++      </nav>
++      <button onClick={toggleNav} className={classes.button}>
++        Menu
++      </button>
++    </header>
++  );
++}
+Index: helpers/useWindowSize.js
+===================================================================
+diff --git a/helpers/useWindowSize.js b/helpers/useWindowSize.js
+--- a/helpers/useWindowSize.js	
++++ b/helpers/useWindowSize.js	
+@@ -1,0 +1,25 @@
++import { useEffect, useState } from 'react';
++
++export default function useWindowSize() {
++  const [windowSize, setWindowSize] = useState({
++    width: undefined,
++    height: undefined,
++  });
++
++  useEffect(() => {
++    if (typeof window !== 'undefined') {
++      function handleResize() {
++        setWindowSize({
++          width: window.innerWidth,
++          height: window.innerHeight,
++        });
++      }
++      window.addEventListener('resize', handleResize);
++      handleResize();
++
++      return () => window.removeEventListener('resize', handleResize);
++    }
++  }, []);
++
++  return windowSize;
++}
+Index: pages/404.js
+===================================================================
+diff --git a/pages/404.js b/pages/404.js
+--- a/pages/404.js	
++++ b/pages/404.js	
+@@ -1,0 +1,5 @@
++import ErrorPage from '../components/ErrorPage';
++
++export default function Error() {
++  return <ErrorPage/>;
++}
+Index: components/MealDetails.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import classes from './Dish.module.scss';\nimport { useRouter } from 'next/router';\n\nexport default function Dish({ data }) {\n  const router = useRouter();\n\n  data.meals.map((item, idx) => {\n    console.log(item.strCategory);\n  });\n\n  if (!Boolean(...Object.values(data))) {\n    console.log('1');\n    return {\n      notFound: true,\n    };\n  }\n\n  return (\n    <section className={classes.container}>\n      {data.meals.map((item) => (\n        <div key={item.idMeal} className={classes.dish}>\n          <div className={classes.dishImage}>\n            <img src={item.strMealThumb} alt=\"img\" />\n          </div>\n          <div className={classes.dishTitle}>{item.strMeal}</div>\n          <div>\n            {item.strIngredient1} : {item.strMeasure1}\n          </div>\n          <div>{item.strCategory}</div>\n        </div>\n      ))}\n    </section>\n  );\n}\n
+===================================================================
+diff --git a/components/MealDetails.js b/components/MealDetails.js
+--- a/components/MealDetails.js	
++++ b/components/MealDetails.js	
+@@ -1,32 +1,59 @@
+-import classes from './Dish.module.scss';
++import classes from './MealDetails.module.scss';
+ import { useRouter } from 'next/router';
++import Image from 'next/image';
++import { useEffect, useState } from 'react';
++import { setCookie } from 'cookies-next';
++import Ingredients from './Ingredients';
++import { getArrayIngredients } from '../helpers';
+ 
+-export default function Dish({ data }) {
++export default function MealDetails({ data, cookie }) {
+   const router = useRouter();
+-
+-  data.meals.map((item, idx) => {
+-    console.log(item.strCategory);
++  const [favIds, setFavIds] = useState(cookie);
++  const [isFavorite, setIsFavorite] = useState(() => {
++    return favIds?.includes(data.meals[0].idMeal);
+   });
+ 
+-  if (!Boolean(...Object.values(data))) {
+-    console.log('1');
+-    return {
+-      notFound: true,
+-    };
+-  }
++  let ingredients = Object.entries(getArrayIngredients(data));
++
++  const onAddToFavorites = (id) => {
++    setIsFavorite((prevState) => !prevState);
++    if (!favIds.includes(id)) {
++      setFavIds((prevState) => [...prevState, id]);
++    } else {
++      setFavIds((prevState) => prevState.filter((item) => item !== id));
++    }
++  };
++
++  useEffect(() => {
++    setCookie('favoriteMeals', favIds);
++  }, [favIds]);
+ 
+   return (
+     <section className={classes.container}>
+-      {data.meals.map((item) => (
+-        <div key={item.idMeal} className={classes.dish}>
+-          <div className={classes.dishImage}>
+-            <img src={item.strMealThumb} alt="img" />
++      {data.meals.map((meal) => (
++        <div key={meal.idMeal} className={classes.mealDetails}>
++          <div className={classes.mealDetailsPreview}>
++            <h1>{meal.strMeal}</h1>
++            <Image src={meal.strMealThumb} alt="Meal image" objectPosition={'center'} width={600} height={400} />
++            <div className={classes.btnWrapper}>
++              <button
++                className={classes.goBackButton}
++                onClick={() => {
++                  router.back();
++                }}
++              >
++                Go back
++              </button>
++              <button className={classes.addToFavorite} onClick={() => onAddToFavorites(meal.idMeal)}>
++                {!isFavorite ? `Add to favorite` : 'Remove from favorite'}
++              </button>
++            </div>
+           </div>
+-          <div className={classes.dishTitle}>{item.strMeal}</div>
+-          <div>
+-            {item.strIngredient1} : {item.strMeasure1}
++          <Ingredients ingredients={ingredients} />
++          <div className={classes.mealDetailsInstruction}>
++            <h2>Instructions</h2>
++            <p>{meal.strInstructions}</p>
+           </div>
+-          <div>{item.strCategory}</div>
+         </div>
+       ))}
+     </section>
+Index: components/MainLayout.module.scss
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>.footer {\r\n  width: 100%;\r\n  height: 5rem;\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: space-between;\r\n  background-color: #77002e;\r\n  padding: 0 10%;\r\n}\r\n
+===================================================================
+diff --git a/components/MainLayout.module.scss b/components/MainLayout.module.scss
+--- a/components/MainLayout.module.scss	
++++ b/components/MainLayout.module.scss	
+@@ -1,9 +1,3 @@
+-.footer {
+-  width: 100%;
+-  height: 5rem;
+-  display: flex;
+-  align-items: center;
+-  justify-content: space-between;
+-  background-color: #77002e;
+-  padding: 0 10%;
++.container {
++  min-height: calc(100vh - 10rem);
+ }
+Index: components/Meals.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import classes from './Dishes.module.scss';\nimport { useRouter } from 'next/router';\nimport Link from 'next/link';\n\nexport default function Dishes({ data, path }) {\n  const router = useRouter();\n\n  if (!Boolean(...Object.values(data))) {\n    console.log('1');\n    return {\n      notFound: true,\n    };\n  }\n\n  return (\n    <section className={classes.container}>\n      {data.meals?.map((item) => (\n        <Link key={item.idMeal} href={`/${path}/${item.idMeal}`}>\n          <div className={classes.dish}>\n            <div className={classes.dishImage}>\n              <img src={item.strMealThumb} alt=\"img\" />\n            </div>\n            <div className={classes.dishTitle}>{item.strMeal}</div>\n          </div>\n        </Link>\n      ))}\n    </section>\n  );\n}\n
+===================================================================
+diff --git a/components/Meals.js b/components/Meals.js
+--- a/components/Meals.js	
++++ b/components/Meals.js	
+@@ -1,29 +1,22 @@
+-import classes from './Dishes.module.scss';
+-import { useRouter } from 'next/router';
++import classes from './Meals.module.scss';
+ import Link from 'next/link';
+-
+-export default function Dishes({ data, path }) {
+-  const router = useRouter();
++import Image from 'next/image';
+ 
+-  if (!Boolean(...Object.values(data))) {
+-    console.log('1');
+-    return {
+-      notFound: true,
+-    };
+-  }
+-
++export default function Meals({ meals }) {
+   return (
+     <section className={classes.container}>
+-      {data.meals?.map((item) => (
+-        <Link key={item.idMeal} href={`/${path}/${item.idMeal}`}>
+-          <div className={classes.dish}>
+-            <div className={classes.dishImage}>
+-              <img src={item.strMealThumb} alt="img" />
+-            </div>
+-            <div className={classes.dishTitle}>{item.strMeal}</div>
+-          </div>
+-        </Link>
+-      ))}
++      {meals.length ? (
++        meals.map((meal) => (
++          <Link key={meal.idMeal} href={`/mealsDetail/${meal.idMeal}`}>
++            <a className={classes.meals}>
++              <Image src={meal.strMealThumb} alt="Meal image" objectPosition={'center'} width={200} height={200} />
++              <div className={classes.mealsTitle}>{meal.strMeal}</div>
++            </a>
++          </Link>
++        ))
++      ) : (
++        <h1 className={classes.mealsListEmpty}>List of meals is empty</h1>
++      )}
+     </section>
+   );
+ }
+Index: components/Meals.module.scss
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>.container {\r\n  display: flex;\r\n  flex-wrap: wrap;\r\n  justify-content: space-between;\r\n  align-items: baseline;\r\n  gap: 15px;\r\n}\r\n.dish {\r\n  padding: 10px;\r\n}\r\n.dishImage {\r\n  width: 200px;\r\n  height: 200px;\r\n  img {\r\n    width: 100%;\r\n    height: 100%;\r\n  }\r\n}\r\n.dishTitle {\r\n  width: 200px;\r\n}\r\n
+===================================================================
+diff --git a/components/Meals.module.scss b/components/Meals.module.scss
+--- a/components/Meals.module.scss	
++++ b/components/Meals.module.scss	
+@@ -1,21 +1,47 @@
+ .container {
++  display: grid;
++  grid-template-columns: repeat(2, 1fr);
++  grid-template-rows: 1fr;
++  grid-column-gap: 16px;
++  grid-row-gap: 16px;
++}
++.meals {
++  padding: 1rem;
+   display: flex;
+-  flex-wrap: wrap;
+-  justify-content: space-between;
+-  align-items: baseline;
+-  gap: 15px;
+-}
+-.dish {
+-  padding: 10px;
+-}
+-.dishImage {
+-  width: 200px;
+-  height: 200px;
+-  img {
+-    width: 100%;
+-    height: 100%;
++  align-items: center;
++  justify-content: flex-start;
++  flex-direction: column;
++  &:hover {
++    img {
++      cursor: pointer;
++      opacity: .4;
++    }
++  }
++}
++.mealsTitle {
++  text-align: center;
++  font-weight: 700;
++  max-width: 12.5rem;
++}
++
++.mealsListEmpty {
++  text-align: center;
++}
++
++@media (min-width: 768px) {
++  .container {
++    grid-template-columns: repeat(3, 1fr);
++  }
++}
++
++@media (min-width: 992px) {
++  .container {
++    grid-template-columns: repeat(4, 1fr);
+   }
+ }
+-.dishTitle {
+-  width: 200px;
++
++@media (min-width: 1400px) {
++  .container {
++    grid-template-columns: repeat(7, 1fr);
++  }
+ }
+Index: components/Footer.module.scss
+===================================================================
+diff --git a/components/Footer.module.scss b/components/Footer.module.scss
+--- a/components/Footer.module.scss	
++++ b/components/Footer.module.scss	
+@@ -1,0 +1,11 @@
++@import "styles/variables";
++
++.footer {
++  width: 100%;
++  height: 5rem;
++  display: flex;
++  align-items: center;
++  justify-content: space-between;
++  background-color: $burgundy;
++  padding: 0 10%;
++}
+Index: components/Category.module.scss
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>.footer {\r\n  width: 100%;\r\n  height: 5rem;\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: space-between;\r\n  background-color: #77002e;\r\n  padding: 0 10%;\r\n}\r\n
+===================================================================
+diff --git a/components/Category.module.scss b/components/Category.module.scss
+--- a/components/Category.module.scss	
++++ b/components/Category.module.scss	
+@@ -1,9 +1,55 @@
+-.footer {
+-  width: 100%;
+-  height: 5rem;
++.categories {
++  display: grid;
++  grid-template-columns: repeat(1, 1fr);
++  grid-template-rows: 1fr;
++  grid-column-gap: 16px;
++  grid-row-gap: 16px;
++  padding: 2rem 10%;
++  background-color: #f1e5e5;
++
++}
++.category {
++  max-width: 25rem;
++  min-height: 28rem;
++  padding: 1rem;
++  justify-self: center;
++  align-self: center;
++}
++.categoryTitle {
++  text-transform: uppercase;
++  font-weight: 700;
++  text-align: center;
++}
++.categoryDescription {
++  text-align: justify;
++}
++.categoryWrap {
+   display: flex;
+-  align-items: center;
+-  justify-content: space-between;
+-  background-color: #77002e;
+-  padding: 0 10%;
++  justify-content: center;
++  flex-direction: column;
++
++  &:hover {
++    img {
++      cursor: pointer;
++      opacity: .4;
++    }
++  }
++}
++
++@media (min-width: 768px) {
++  .categories {
++    grid-template-columns: repeat(2, 1fr);
++  }
++}
++
++@media (min-width: 992px) {
++  .categories {
++    grid-template-columns: repeat(3, 1fr);
++  }
++}
++
++@media (min-width: 1400px) {
++  .categories {
++    grid-template-columns: repeat(4, 1fr);
++  }
+ }
+Index: components/Favorites.js
+===================================================================
+diff --git a/components/Favorites.js b/components/Favorites.js
+--- a/components/Favorites.js	
++++ b/components/Favorites.js	
+@@ -1,0 +1,19 @@
++import classes from './Favorites.module.scss';
++import { useState } from 'react';
++import Meals from './Meals';
++
++export default function Favorites({ meals }) {
++  const [state, setState] = useState(() => {
++    return meals.map((item) => item.meals[0]);
++  });
++
++  return (
++    <>
++      {state.length ? (
++        <Meals meals={state} />
++      ) : (
++        <h1 className={classes.favoriteEmpty}>List of favorite meals is empty</h1>
++      )}
++    </>
++  );
++}
+Index: styles/ovverides.scss
+===================================================================
+diff --git a/styles/ovverides.scss b/styles/ovverides.scss
+--- a/styles/ovverides.scss	
++++ b/styles/ovverides.scss	
+@@ -1,0 +1,40 @@
++@mixin btn () {
++  margin-top: 20px;
++  padding: 10px;
++  background: #77002e;
++  color:  #fcb8d2;
++  z-index: 1;
++  outline: none;
++  max-width: 250px;
++  height: 40px;
++  border: 2px solid #000;
++  font-family: 'Lato', sans-serif;
++  font-weight: 500;
++  cursor: pointer;
++  transition: all 0.3s ease;
++  position: relative;
++  display: inline-block;
++
++  &:after {
++    position: absolute;
++    content: "";
++    width: 0;
++    height: 100%;
++    top: 0;
++    left: 0;
++    z-index: -1;
++    background: #f1e5e5;
++    transition: all 0.3s ease;
++  }
++
++  &:hover {
++    color: #000;
++    &:after {
++      right: 0;
++      width: 100%;
++    }
++  }
++  &:active {
++    top: 2px;
++  }
++}
+Index: pages/favorites.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import Categories from '../components/Categories';\nimport MainLayout from '../components/MainLayout';\n\nexport default function Index({ data }) {\n  return <MainLayout title={'Home'}>favorites</MainLayout>;\n}\n
+===================================================================
+diff --git a/pages/favorites.js b/pages/favorites.js
+--- a/pages/favorites.js	
++++ b/pages/favorites.js	
+@@ -1,6 +1,23 @@
+-import Categories from '../components/Categories';
+-import MainLayout from '../components/MainLayout';
++import Favorites from '../components/Favorites';
++import procces from '../next.config';
++import { getCookie, hasCookie } from 'cookies-next';
++import { fetchAllFavoritesData } from '../helpers';
++
++export default function FavoritesPage({ meals }) {
++  return <Favorites meals={meals} />;
++}
+ 
+-export default function Index({ data }) {
+-  return <MainLayout title={'Home'}>favorites</MainLayout>;
++export async function getServerSideProps({ req, res }) {
++  let meals = [];
++  if (hasCookie('favoriteMeals', { req, res })) {
++    const resCookies = getCookie('favoriteMeals', { req, res });
++    const cookies = JSON.parse(resCookies);
++    meals = await fetchAllFavoritesData(cookies, `${procces.env.API_URL}/lookup.php?i=`);
++  }
++
++  return {
++    props: {
++      meals,
++    },
++  };
+ }
+Index: components/MealDetails.module.scss
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>.container {\r\n  display: flex;\r\n  flex-wrap: wrap;\r\n  justify-content: space-between;\r\n  align-items: baseline;\r\n  gap: 15px;\r\n}\r\n.dish {\r\n  padding: 10px;\r\n}\r\n.dishImage {\r\n  width: 200px;\r\n  height: 200px;\r\n  img {\r\n    width: 100%;\r\n    height: 100%;\r\n  }\r\n}\r\n.dishTitle {\r\n  width: 200px;\r\n}\r\n
+===================================================================
+diff --git a/components/MealDetails.module.scss b/components/MealDetails.module.scss
+--- a/components/MealDetails.module.scss	
++++ b/components/MealDetails.module.scss	
+@@ -1,21 +1,59 @@
++@import 'styles/ovverides';
++
+ .container {
++  padding: 1.5rem 10%;
++  font-size: 1rem;
++  font-weight: 500;
++  text-align: justify;
++}
++.mealDetails {
++  display: grid;
++  grid-template-rows: repeat(1, 1fr);
++  grid-column-gap: 1.5rem;
++  grid-row-gap: 1.5rem;
++}
++.mealDetailsPreview {
++  text-align: center;
++}
++
++.mealDetailsInstruction {
++  text-align: center;
++  p {
++    text-align: justify;
++    max-height: 20rem;
++    overflow-y: auto;
++  }
++}
++
++.btnWrapper {
+   display: flex;
+-  flex-wrap: wrap;
+-  justify-content: space-between;
+-  align-items: baseline;
+-  gap: 15px;
++  justify-content: center;
++  gap: 1rem;
++}
++
++.goBackButton {
++  @include btn()
+ }
+-.dish {
+-  padding: 10px;
++
++.addToFavorite {
++  @include btn()
+ }
+-.dishImage {
+-  width: 200px;
+-  height: 200px;
+-  img {
+-    width: 100%;
+-    height: 100%;
++
++@media (min-width: 768px) {
++  .mealDetails {
++    grid-template-rows: repeat(2, 1fr);
++    grid-template-columns: repeat(2, 1fr);
+   }
+-}
+-.dishTitle {
+-  width: 200px;
++
++  .mealDetailsPreview {
++    grid-area: 1 / 1 / 2 / 2;
++  }
++
++  .mealDetailsPreview {
++    grid-area: 1 / 1 / 2 / 2;
++  }
++
++  .mealDetailsInstruction {
++    grid-area: 2 / 1 / 3 / 3;
++  }
+ }
+Index: .prettierrc.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>{\r\n  \"trailingComma\": \"es5\",\r\n  \"tabWidth\": 2,\r\n  \"semi\": true,\r\n  \"singleQuote\": true,\r\n  \"printWidth\": 120,\r\n  \"bracketSpacing\": true,\r\n  \"arrowParens\": \"always\",\r\n  \"endOfLine\": \"lf\"\r\n}
+===================================================================
+diff --git a/.prettierrc.json b/.prettierrc.json
+--- a/.prettierrc.json	
++++ b/.prettierrc.json	
+@@ -5,6 +5,5 @@
+   "singleQuote": true,
+   "printWidth": 120,
+   "bracketSpacing": true,
+-  "arrowParens": "always",
+-  "endOfLine": "lf"
+-}
+\ No newline at end of file
++  "arrowParens": "always"
++}
+Index: components/Ingredients.module.scss
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>@import \"styles/variables\";\r\n\r\n.footer {\r\n  width: 100%;\r\n  height: 5rem;\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: space-between;\r\n  background-color: $burgundy;\r\n  padding: 0 10%;\r\n}\r\n
+===================================================================
+diff --git a/components/Ingredients.module.scss b/components/Ingredients.module.scss
+--- a/components/Ingredients.module.scss	
++++ b/components/Ingredients.module.scss	
+@@ -1,11 +1,14 @@
+ @import "styles/variables";
+ 
+-.footer {
+-  width: 100%;
+-  height: 5rem;
+-  display: flex;
+-  align-items: center;
+-  justify-content: space-between;
+-  background-color: $burgundy;
+-  padding: 0 10%;
++.ingredients {
++  h2 {
++    text-align: center;
++  }
++
++  ul {
++    padding: 0;
++    li {
++      list-style: none;
++    }
++  }
+ }
+Index: components/Favorites.module.scss
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>.categories {\r\n  display: grid;\r\n  grid-template-columns: repeat(1, 1fr);\r\n  grid-template-rows: 1fr;\r\n  grid-column-gap: 16px;\r\n  grid-row-gap: 16px;\r\n  //padding: 2rem;\r\n  padding: 2rem 10%;\r\n  background-color: #f1e5e5;\r\n\r\n}\r\n.category {\r\n  max-width: 25rem;\r\n  min-height: 28rem;\r\n  padding: 1rem;\r\n  justify-self: center;\r\n  align-self: center;\r\n}\r\n.categoryTitle {\r\n  text-transform: uppercase;\r\n  font-weight: 700;\r\n  text-align: center;\r\n}\r\n.categoryDescription {\r\n  text-align: justify;\r\n}\r\n.categoryWrap {\r\n  display: flex;\r\n  justify-content: center;\r\n  flex-direction: column;\r\n\r\n  &:hover {\r\n    img {\r\n      cursor: pointer;\r\n      opacity: .4;\r\n    }\r\n  }\r\n}\r\n\r\n@media (min-width: 768px) {\r\n  .categories {\r\n    grid-template-columns: repeat(2, 1fr);\r\n  }\r\n}\r\n\r\n@media (min-width: 992px) {\r\n  .categories {\r\n    grid-template-columns: repeat(3, 1fr);\r\n  }\r\n}\r\n\r\n@media (min-width: 1400px) {\r\n  .categories {\r\n    grid-template-columns: repeat(4, 1fr);\r\n  }\r\n}\r\n
+===================================================================
+diff --git a/components/Favorites.module.scss b/components/Favorites.module.scss
+--- a/components/Favorites.module.scss	
++++ b/components/Favorites.module.scss	
+@@ -1,56 +1,5 @@
+-.categories {
+-  display: grid;
+-  grid-template-columns: repeat(1, 1fr);
+-  grid-template-rows: 1fr;
+-  grid-column-gap: 16px;
+-  grid-row-gap: 16px;
+-  //padding: 2rem;
+-  padding: 2rem 10%;
+-  background-color: #f1e5e5;
+-
+-}
+-.category {
+-  max-width: 25rem;
+-  min-height: 28rem;
+-  padding: 1rem;
+-  justify-self: center;
+-  align-self: center;
+-}
+-.categoryTitle {
+-  text-transform: uppercase;
+-  font-weight: 700;
++.favoriteEmpty {
++  grid-area: 1 / 1 / 2 / 3;
++  font-size: 20px;
+   text-align: center;
+ }
+-.categoryDescription {
+-  text-align: justify;
+-}
+-.categoryWrap {
+-  display: flex;
+-  justify-content: center;
+-  flex-direction: column;
+-
+-  &:hover {
+-    img {
+-      cursor: pointer;
+-      opacity: .4;
+-    }
+-  }
+-}
+-
+-@media (min-width: 768px) {
+-  .categories {
+-    grid-template-columns: repeat(2, 1fr);
+-  }
+-}
+-
+-@media (min-width: 992px) {
+-  .categories {
+-    grid-template-columns: repeat(3, 1fr);
+-  }
+-}
+-
+-@media (min-width: 1400px) {
+-  .categories {
+-    grid-template-columns: repeat(4, 1fr);
+-  }
+-}
+Index: components/Ingredients.js
+===================================================================
+diff --git a/components/Ingredients.js b/components/Ingredients.js
+--- a/components/Ingredients.js	
++++ b/components/Ingredients.js	
+@@ -1,0 +1,18 @@
++import classes from './Ingredients.module.scss';
++
++export default function Ingredients({ ingredients }) {
++  return (
++    <div className={classes.ingredients}>
++      <h2>Ingredients</h2>
++      <ul>
++        {ingredients.map(([name, value]) => {
++          return (
++            <li key={name}>
++              {name} : {value}
++            </li>
++          );
++        })}
++      </ul>
++    </div>
++  );
++}
+Index: components/Categories.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import classes from './Category.module.scss';\nimport { useRouter } from 'next/router';\n\nexport default function Categories({ data }) {\n  const router = useRouter();\n\n  const linkClickHandler = ({ path }) => {\n    router.push(`/${path}`);\n  };\n\n  return (\n    <section className={classes.categories}>\n      {data.categories.map((item) => (\n        <div onClick={linkClickHandler(item.strCategory)}>\n          <div className={classes.category} key={item.idCategory}>\n            <div className={classes.categoryImage}>\n              <img src={item.strCategoryThumb} alt=\"img\" />\n            </div>\n          </div>\n          <div className={classes.categoryTitle}>{item.strCategory}</div>\n          <div className={classes.CategoryDescription}>{item.strCategoryDescription}</div>\n        </div>\n      ))}\n    </section>\n  );\n}\n
+===================================================================
+diff --git a/components/Categories.js b/components/Categories.js
+--- a/components/Categories.js	
++++ b/components/Categories.js	
+@@ -1,24 +1,35 @@
+ import classes from './Category.module.scss';
+-import { useRouter } from 'next/router';
++import Link from 'next/link';
++import Image from 'next/image';
+ 
+-export default function Categories({ data }) {
+-  const router = useRouter();
+-
+-  const linkClickHandler = ({ path }) => {
+-    router.push(`/${path}`);
++export default function Categories({ categories }) {
++  const splitText = (text) => {
++    let sliced = text.slice(0, 200);
++    if (sliced.length < text.length) {
++      sliced += '...';
++    }
++    return <p>{sliced}</p>;
+   };
+ 
+   return (
+     <section className={classes.categories}>
+-      {data.categories.map((item) => (
+-        <div onClick={linkClickHandler(item.strCategory)}>
+-          <div className={classes.category} key={item.idCategory}>
+-            <div className={classes.categoryImage}>
+-              <img src={item.strCategoryThumb} alt="img" />
+-            </div>
+-          </div>
+-          <div className={classes.categoryTitle}>{item.strCategory}</div>
+-          <div className={classes.CategoryDescription}>{item.strCategoryDescription}</div>
++      {categories.map((item) => (
++        <div key={item.idCategory} className={classes.category}>
++          <Link href={`/categories/${item.strCategory.toLowerCase()}`}>
++            <a>
++              <div className={classes.categoryWrap}>
++                <Image
++                  src={item.strCategoryThumb}
++                  alt="Category picture"
++                  objectPosition={'center'}
++                  width={300}
++                  height={200}
++                />
++                <div className={classes.categoryTitle}>{item.strCategory}</div>
++              </div>
++            </a>
++          </Link>
++          <div className={classes.categoryDescription}>{splitText(item.strCategoryDescription)}</div>
+         </div>
+       ))}
+     </section>
+Index: pages/categories/[meals]/index.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import { useRouter } from 'next/router';\nimport Meals from '../../../components/Meals';\nimport procces from '../../../next.config';\nimport { useAppContext } from '../../../context/conext';\n\nexport default function MealsPage() {\n  const router = useRouter();\n  const ctx = useAppContext();\n  console.log(ctx, 'ctx');\n  return <Meals data={null} path={router.query.categoriesid} />;\n}\n\n// export async function getServerSideProps({ query, res }) {\n//   try {\n//     // const response = await fetch(`${procces.env.API_URL}/filter.php?c=${query.categoriesid}`);\n//     // const data = await response.json();\n//\n//     // let response = await Promise.all(cookies.map((cookie) => fetch(`${procces.env.API_URL}/lookup.php?i=${cookie}`)));\n//     // let data = await Promise.all(response.map((r) => r.json()));\n//\n//     if (!Boolean(...Object.values(data))) {\n//       return {\n//         notFound: true,\n//       };\n//     }\n//\n//     return {\n//       props: {\n//         data,\n//       },\n//     };\n//   } catch (e) {\n//     return {\n//       notFound: true,\n//     };\n//   }\n// }\n
+===================================================================
+diff --git a/pages/categories/[meals]/index.js b/pages/categories/[meals]/index.js
+--- a/pages/categories/[meals]/index.js	
++++ b/pages/categories/[meals]/index.js	
+@@ -1,37 +1,31 @@
+-import { useRouter } from 'next/router';
+ import Meals from '../../../components/Meals';
+ import procces from '../../../next.config';
+-import { useAppContext } from '../../../context/conext';
++import { fetchAllCategories, fetchData } from '../../../helpers';
++
++export default function MealsPage({ meals }) {
++  return <Meals meals={meals} />;
++}
+ 
+-export default function MealsPage() {
+-  const router = useRouter();
+-  const ctx = useAppContext();
+-  console.log(ctx, 'ctx');
+-  return <Meals data={null} path={router.query.categoriesid} />;
++export async function getStaticPaths() {
++  const { categories } = await fetchAllCategories(procces.env.API_URL);
++  const paths = categories.map((category) => ({
++    params: { meals: category.strCategory.toLowerCase() },
++  }));
++  return { paths, fallback: false };
+ }
+ 
+-// export async function getServerSideProps({ query, res }) {
+-//   try {
+-//     // const response = await fetch(`${procces.env.API_URL}/filter.php?c=${query.categoriesid}`);
+-//     // const data = await response.json();
+-//
+-//     // let response = await Promise.all(cookies.map((cookie) => fetch(`${procces.env.API_URL}/lookup.php?i=${cookie}`)));
+-//     // let data = await Promise.all(response.map((r) => r.json()));
+-//
+-//     if (!Boolean(...Object.values(data))) {
+-//       return {
+-//         notFound: true,
+-//       };
+-//     }
+-//
+-//     return {
+-//       props: {
+-//         data,
+-//       },
+-//     };
+-//   } catch (e) {
+-//     return {
+-//       notFound: true,
+-//     };
+-//   }
+-// }
++export async function getStaticProps({ params }) {
++  const mealsData = await fetchData(`${procces.env.API_URL}/filter.php?c=`, params.meals);
++  if (!Boolean(...Object.values(mealsData))) {
++    return {
++      notFound: true,
++    };
++  }
++
++  return {
++    props: {
++      meals: mealsData.meals,
++    },
++    revalidate: 60,
++  };
++}
+Index: pages/categories/index.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import Categories from '../components/Categories';\nimport procces from '../next.config';\n\nexport default function Index({ data }) {\n  return <Categories data={data} />;\n}\n\nexport async function getStaticProps() {\n  const response = await fetch(`${procces.env.API_URL}/categories.php`);\n  const data = await response.json();\n\n  if (!Boolean(...Object.values(data))) {\n    return {\n      notFound: true,\n    };\n  }\n\n  return {\n    props: {\n      data,\n    },\n  };\n}\n
+===================================================================
+diff --git a/pages/categories/index.js b/pages/categories/index.js
+--- a/pages/categories/index.js	
++++ b/pages/categories/index.js	
+@@ -1,23 +1,18 @@
+-import Categories from '../components/Categories';
+-import procces from '../next.config';
++import Categories from '../../components/Categories';
++import { fetchAllCategories } from '../../helpers/index';
++import procces from '../../next.config';
+ 
+-export default function Index({ data }) {
+-  return <Categories data={data} />;
++export default function Index({ categories }) {
++  return <Categories categories={categories} />;
+ }
+ 
+ export async function getStaticProps() {
+-  const response = await fetch(`${procces.env.API_URL}/categories.php`);
+-  const data = await response.json();
+-
+-  if (!Boolean(...Object.values(data))) {
+-    return {
+-      notFound: true,
+-    };
+-  }
++  const { categories } = await fetchAllCategories(procces.env.API_URL);
+ 
+   return {
+     props: {
+-      data,
++      categories,
+     },
++    revalidate: 60,
+   };
+ }
+Index: components/MainLayout.js
+===================================================================
+diff --git a/components/MainLayout.js b/components/MainLayout.js
+--- a/components/MainLayout.js	
++++ b/components/MainLayout.js	
+@@ -1,0 +1,20 @@
++import Head from 'next/head';
++import NavBar from './NavBar';
++import Footer from './Footer';
++import classes from './MainLayout.module.scss';
++
++export default function MainLayout({ children }) {
++  return (
++    <>
++      <Head>
++        <title> Recipe Viewer</title>
++        <meta name="keywords" content="recipe, recipe viewer, meat, food" />
++        <meta name="description" content="Recipe viewer by create next app" />
++        <meta charSet="utf-8" />
++      </Head>
++      <NavBar />
++      <main className={classes.container}>{children}</main>
++      <Footer />
++    </>
++  );
++}
+Index: pages/mealsDetail/[id].js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import { getCookie, setCookie } from 'cookies-next';\nimport MealDetails from '../../../../components/MealDetails';\nimport procces from '../../../../next.config';\nimport { fetchMealsByCategory } from '../../../../helpers';\n\nexport default function MealsPage({ data, cookie }) {\n  return <MealDetails data={data} cookie={cookie} />;\n}\n\nexport async function getStaticPaths() {\n  const { categories } = await fetchMealsByCategory(procces.env.API_URL);\n  const paths = categories.map((category) => ({\n    params: { meals: category.strCategory.toLowerCase() },\n  }));\n  return { paths, fallback: false };\n}\n\nexport async function getStaticProps({ params }) {\n  console.log(params, 'params');\n  const mealsData = await fetchMealsByCategory(`${procces.env.API_URL}/lookup.php?i=`, params.meals);\n\n  if (!Boolean(...Object.values(mealsData))) {\n    return {\n      notFound: true,\n    };\n  }\n\n  return {\n    props: {\n      mealsData,\n      params,\n    },\n  };\n}\n\n// export async function getServerSideProps({ query, res, req }) {\n//   try {\n//\n//     const response = await fetch(`${procces.env.API_URL}/lookup.php?i=${query.mealsDetail}`);\n//     const data = await response.json();\n//\n//     const resCookies = getCookie('favoriteMeals', { req, res });\n//     const cookie = await JSON.parse(resCookies);\n//\n//     setCookie('favoriteMeals', null, { req, res });\n//\n//     if (!Boolean(...Object.values(data))) {\n//       return {\n//         notFound: true,\n//       };\n//     }\n//\n//     return {\n//       props: {\n//         data,\n//         cookie,\n//       },\n//     };\n//   } catch (e) {\n//     return {\n//       notFound: true,\n//     };\n//   }\n// }\n
+===================================================================
+diff --git a/pages/mealsDetail/[id].js b/pages/mealsDetail/[id].js
+--- a/pages/mealsDetail/[id].js	
++++ b/pages/mealsDetail/[id].js	
+@@ -1,64 +1,38 @@
+-import { getCookie, setCookie } from 'cookies-next';
+-import MealDetails from '../../../../components/MealDetails';
+-import procces from '../../../../next.config';
+-import { fetchMealsByCategory } from '../../../../helpers';
++import MealDetails from '../../components/MealDetails';
++import { getCookie, hasCookie, setCookie } from 'cookies-next';
++import { fetchData } from '../../helpers';
++import procces from '../../next.config';
+ 
+-export default function MealsPage({ data, cookie }) {
+-  return <MealDetails data={data} cookie={cookie} />;
++export default function mealsDetailPage({ mealData, cookie }) {
++  return <MealDetails data={mealData} cookie={cookie} />;
+ }
+ 
+-export async function getStaticPaths() {
+-  const { categories } = await fetchMealsByCategory(procces.env.API_URL);
+-  const paths = categories.map((category) => ({
+-    params: { meals: category.strCategory.toLowerCase() },
+-  }));
+-  return { paths, fallback: false };
+-}
++export async function getServerSideProps({ query, res, req }) {
++  try {
++    const mealData = await fetchData(`${procces.env.API_URL}/lookup.php?i=`, query.id);
++
++    if (!hasCookie('favoriteMeals', { req, res })) {
++      setCookie('favoriteMeals', [], { req, res });
++    }
+ 
+-export async function getStaticProps({ params }) {
+-  console.log(params, 'params');
+-  const mealsData = await fetchMealsByCategory(`${procces.env.API_URL}/lookup.php?i=`, params.meals);
++    const resCookies = getCookie('favoriteMeals', { req, res });
++    const cookie = JSON.parse(resCookies);
+ 
+-  if (!Boolean(...Object.values(mealsData))) {
+-    return {
+-      notFound: true,
+-    };
+-  }
++    if (!Boolean(...Object.values(mealData))) {
++      return {
++        notFound: true,
++      };
++    }
+ 
+-  return {
+-    props: {
+-      mealsData,
+-      params,
+-    },
+-  };
++    return {
++      props: {
++        mealData,
++        cookie,
++      },
++    };
++  } catch {
++    return {
++      notFound: true,
++    };
++  }
+ }
+-
+-// export async function getServerSideProps({ query, res, req }) {
+-//   try {
+-//
+-//     const response = await fetch(`${procces.env.API_URL}/lookup.php?i=${query.mealsDetail}`);
+-//     const data = await response.json();
+-//
+-//     const resCookies = getCookie('favoriteMeals', { req, res });
+-//     const cookie = await JSON.parse(resCookies);
+-//
+-//     setCookie('favoriteMeals', null, { req, res });
+-//
+-//     if (!Boolean(...Object.values(data))) {
+-//       return {
+-//         notFound: true,
+-//       };
+-//     }
+-//
+-//     return {
+-//       props: {
+-//         data,
+-//         cookie,
+-//       },
+-//     };
+-//   } catch (e) {
+-//     return {
+-//       notFound: true,
+-//     };
+-//   }
+-// }
+Index: styles/globals.scss
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>html,\nbody {\n  padding: 0;\n  margin: 0;\n  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,\n    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;\n}\n\na {\n  color: inherit;\n  text-decoration: none;\n}\n\n* {\n  box-sizing: border-box;\n}\n
+===================================================================
+diff --git a/styles/globals.scss b/styles/globals.scss
+--- a/styles/globals.scss	
++++ b/styles/globals.scss	
+@@ -1,9 +1,12 @@
++@import "variables";
++
+ html,
+ body {
+   padding: 0;
+   margin: 0;
+   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
++  background-color: $whisper;
+ }
+ 
+ a {
+Index: components/Footer.js
+===================================================================
+diff --git a/components/Footer.js b/components/Footer.js
+--- a/components/Footer.js	
++++ b/components/Footer.js	
+@@ -1,0 +1,5 @@
++import classes from './Footer.module.scss';
++
++export default function Footer() {
++  return <footer className={classes.footer}></footer>;
++}
+Index: styles/variables.scss
+===================================================================
+diff --git a/styles/variables.scss b/styles/variables.scss
+--- a/styles/variables.scss	
++++ b/styles/variables.scss	
+@@ -1,0 +1,3 @@
++$burgundy: #77002e;
++$cottonCandy: #fcb8d2;
++$whisper: #F1E5E5;
+Index: components/NavBar.module.scss
+===================================================================
+diff --git a/components/NavBar.module.scss b/components/NavBar.module.scss
+--- a/components/NavBar.module.scss	
++++ b/components/NavBar.module.scss	
+@@ -1,0 +1,92 @@
++@import "styles/variables";
++
++.header {
++    width: 100%;
++    height: 5rem;
++    background-color: $burgundy;
++    padding: 0 10%;
++    display: flex;
++    align-items: center;
++    justify-content: space-between;
++    position: relative;
++    z-index: 1;
++
++}
++.list {
++    margin: 0;
++    padding: 0;
++    position: absolute;
++    top: 5rem;
++    left: 0;
++    right: 0;
++    list-style: none;
++    background-color: $burgundy;
++    display: flex;
++    flex-direction: column;
++    justify-content: center;
++}
++
++.item {
++    display: flex;
++    flex-direction: column;
++    justify-content: center;
++    align-items: center;
++    padding: 10px 0;
++    font-size: 14px;
++    a {
++      text-decoration: none;
++       font-size: 1.5rem;
++      color: $cottonCandy;
++
++      &:hover,
++      &:active {
++          color: white;
++      }
++    }
++}
++
++.button {
++  background-color: transparent;
++  border-radius: 8px;
++  border-width: 0;
++  cursor: pointer;
++  display: inline-block;
++  font-size: 14px;
++  font-weight: 700;
++  list-style: none;
++  margin: 0;
++  padding: 10px 12px;
++  text-align: center;
++  color: white;
++}
++
++.logo {
++    font-size: 16px;
++    color: white;
++    font-weight: 700;
++}
++
++.button {
++    display: block;
++}
++
++@media (min-width: 576px) {
++    .button {
++        display: none;
++    }
++
++  .list {
++    position: relative;
++    flex-direction: row;
++    top: 0;
++    a:first-child {
++      margin-right: 20px;
++    }
++  }
++
++    .item {
++        display: flex;
++    }
++}
++
++
+Index: components/ErrorPage.js
+===================================================================
+diff --git a/components/ErrorPage.js b/components/ErrorPage.js
+--- a/components/ErrorPage.js	
++++ b/components/ErrorPage.js	
+@@ -1,0 +1,11 @@
++import classes from './ErrorPage.module.scss';
++
++export default function ErrorPage() {
++
++
++  return (
++    <section className={classes.error}>
++      <h1>Page not found</h1>
++    </section>
++  );
++}
+Index: components/ErrorPage.module.scss
+===================================================================
+diff --git a/components/ErrorPage.module.scss b/components/ErrorPage.module.scss
+--- a/components/ErrorPage.module.scss	
++++ b/components/ErrorPage.module.scss	
+@@ -1,0 +1,4 @@
++.error {
++  display: flex;
++  justify-content: center;
++}
